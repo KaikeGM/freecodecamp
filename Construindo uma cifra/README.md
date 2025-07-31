@@ -1,87 +1,128 @@
-# Criptografia Vigenère em Python: Um Guia Completo
+# Criptografia Vigenère em Python: Um Guia Prático
 
-## Capítulo 1: Introdução à Criptografia
+## Sumário
 
-### 1.1 O que é Criptografia?
-    * Definição e importância da criptografia na segurança da informação.
-    * Breve histórico da criptografia.
+1. [Introdução](#introdução)
+2. [Fundamentos da Criptografia](#fundamentos-da-criptografia)
+3. [O Criptograma de Vigenère](#o-criptograma-de-vigenère)
+4. [Implementação em Python](#implementação-em-python)
 
-### 1.2 Tipos de Criptografia
-    * Criptografia Simétrica vs. Assimétrica.
-    * Criptografia de Fluxo vs. Criptografia de Bloco.
+   * [Requisitos](#requisitos)
+   * [Função `vigenere`](#função-vigenere)
+   * [Funções `encrypt` e `decrypt`](#funções-encrypt-e-decrypt)
+   * [Exemplo de Uso](#exemplo-de-uso)
+5. [Análise e Melhoria do Código](#análise-e-melhoria-do-código)
+6. [Segurança e Criptoanálise](#segurança-e-criptoanálise)
+7. [Conclusão](#conclusão)
 
-### 1.3 Conceitos Fundamentais
-    * Chaves criptográficas (pública e privada).
-    * Algoritmos de criptografia.
-    * Hash functions e sua aplicação.
+---
 
-## Capítulo 2: O Criptograma de Vigenère
+## Introdução
 
-### 2.1 História do Criptograma de Vigenère
-    * Origem e evolução do método de Vigenère.
-    * Vigenère como um exemplo de cifra polialfabética.
+A criptografia é a técnica de codificar informações de forma que somente partes autorizadas possam lê-las. Ela protege dados em trânsito e em repouso, sendo essencial na segurança da informação.
 
-### 2.2 Como Funciona o Criptograma de Vigenère
-    * Explicação detalhada do processo de criptografia.
-    * Uso de uma chave para deslocar letras.
-    * O conceito de polialfabetismo.
+## Fundamentos da Criptografia
 
-### 2.3 Vantagens e Desvantagens
-    * Vantagens sobre cifras monoalfabéticas (ex: César).
-    * Vulnerabilidades a ataques criptoanalíticos.
+* **Simétrica vs. Assimétrica**: na criptografia simétrica, a mesma chave é usada para criptografar e descriptografar. Na assimétrica, há par de chaves pública/privada.
+* **Hash Functions**: funções unidirecionais (ex.: SHA-256) usadas para garantir integridade.
 
-## Capítulo 3: Implementação em Python
+## O Criptograma de Vigenère
 
-### 3.1 Requisitos Preliminares
-    * Ambiente de desenvolvimento Python.
-    * Bibliotecas necessárias (se houver).
+### História
 
-### 3.2 Função `vigenere(message, key, direction=1)`
-    * Explicação detalhada da função.
-    * Manipulação de letras e não-letras.
-    * Cálculo do deslocamento com base na chave.
+Desenvolvida no século XVI, a cifra de Vigenère foi considerada indecifrável até o século XIX. Usa múltiplos alfabetos (polialfabética) para deslocamento.
 
-### 3.3 Funções `encrypt(message, key)` e `decrypt(message, key)`
-    * Implementação da criptografia.
-    * Implementação da descriptografia (direção inversa).
+### Funcionamento
 
-### 3.4 Exemplo de Uso
-    * Demonstração do uso das funções com um exemplo prático.
-    * Criptografia da mensagem "mrttaqrhknsw ih puggrur" com a chave "python".
-    * Descriptografia do texto cifrado resultante.
+1. Cada letra da mensagem é deslocada por um valor baseado na letra correspondente da chave.
+2. A chave se repete até o final da mensagem.
+3. Caracteres não alfabéticos são preservados.
 
-## Capítulo 4: Análise do Código
+## Implementação em Python
 
-### 4.1 Detalhes da Implementação
-    * Uso de `key_index` para repetição da chave.
-    * Tratamento de caracteres não alfabéticos.
-    * Cálculo do índice para cifrar/decifrar.
+### Requisitos
 
-### 4.2 Otimização e Melhorias
-    * Possíveis otimizações do código.
-    * Tratamento de letras maiúsculas e minúsculas.
-    * Suporte a caracteres especiais.
+* Python 3.x instalado
 
-## Capítulo 5: Segurança e Criptoanálise
+### Função `vigenere`
 
-### 5.1 Vulnerabilidades do Criptograma de Vigenère
-    * Ataques baseados na repetição da chave.
-    * Comprimento da chave e sua influência na segurança.
+```python
+# Aplica a cifra de Vigenère para criptografar ou descriptografar uma mensagem
 
-### 5.2 Fortalecendo a Cifra
-    * Uso de chaves longas e aleatórias.
-    * Combinação com outras técnicas de criptografia.
+def vigenere(message: str, key: str, direction: int = 1) -> str:
+    """
+    :param message: Texto a ser processado (criptografado/descriptografado).
+    :param key: Chave usada para definir o deslocamento de cada letra.
+    :param direction: +1 para criptografar, -1 para descriptografar.
+    :return: Mensagem resultante após aplicação da cifra.
+    """
+    key_index = 0                       # Índice para percorrer a chave ciclicamente
+    alphabet = 'abcdefghijklmnopqrstuvwxyz'  # Alfabeto base para deslocamento
+    final_message = ''                  # Armazena o resultado final
 
-### 5.3 Considerações Finais
-    * A importância de algoritmos de criptografia modernos.
-    * O papel da criptografia na proteção de dados.
+    for char in message.lower():       # Percorre cada caractere em minúsculas
+        if not char.isalpha():         # Se não for letra, acrescenta sem alteração
+            final_message += char      # Mantém espaços, pontuações etc.
+        else:
+            key_char = key[key_index % len(key)]  # Seleciona caractere da chave
+            key_index += 1             # Incrementa índice da chave
 
-## Capítulo 6: Conclusão
+            offset = alphabet.index(key_char)     # Converte chave em deslocamento numérico
+            index = alphabet.index(char)          # Posição da letra original
+            # Calcula nova posição considerando direção (criptografia ou descriptografia)
+            new_index = (index + offset * direction) % len(alphabet)
 
-### 6.1 Resumo dos Pontos Chave
-    * Revisão dos principais conceitos abordados.
-    * Importância da criptografia na segurança da informação.
+            final_message += alphabet[new_index]  # Adiciona letra resultante
 
-### 6.2 Próximos Passos
-    * Sugestões para aprofundar o conhecimento em criptografia.
-    * Recursos adicionais para estudo e prática.
+    return final_message               # Retorna texto cifrado ou decifrado
+```
+
+### Funções `encrypt` e `decrypt`
+
+```python
+# Encripta mensagem usando Vigenère
+
+def encrypt(message: str, key: str) -> str:
+    return vigenere(message, key, direction=1)
+
+# Desencripta mensagem usando Vigenère
+
+def decrypt(message: str, key: str) -> str:
+    return vigenere(message, key, direction=-1)
+```
+
+### Exemplo de Uso
+
+```python
+text = 'mrttaqrhknsw ih puggrur'    # Texto cifrado de entrada
+custom_key = 'python'               # Chave usada na cifra
+
+print(f'Encrypted text: {text}')   # Exibe o texto cifrado
+print(f'Key: {custom_key}')         # Exibe a chave utilizada
+
+decrypted = decrypt(text, custom_key)  # Executa descriptografia
+print(f'Decrypted text: {decrypted}')  # Exibe resultado final
+```
+
+**Saída esperada:**
+
+```
+Encrypted text: mrttaqrhknsw ih puggrur
+Key: python
+Decrypted text: varchar sandbox
+```
+
+## Análise e Melhoria do Código
+
+* **Preservar caixa de texto**: adaptar para manter maiúsculas e minúsculas originais.
+* **Suporte a caracteres especiais**: converter acentos e símbolos via Unicode.
+* **Performance**: usar lista de caracteres e `str.join` em vez de concatenar strings diretamente.
+
+## Segurança e Criptoanálise
+
+* **Vulnerabilidades**: ataques por repetição de chave (métodos de Kasiski e Friedman).
+* **Fortalecimento**: utilizar chaves longas e aleatórias, e combinar com algoritmos modernos como AES.
+
+## Conclusão
+
+A cifra de Vigenère é excelente para entender fundamentos de criptografia histórica. Em aplicações reais, é recomendável usar algoritmos robustos atuais, mas conhecer seu funcionamento enriquece a compreensão das práticas modernas.
